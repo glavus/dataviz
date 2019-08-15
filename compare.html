@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<title>Evaluating Causation</title>
+<head>
+	<center>
+	<section>
+		<a href="index.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/home_image.png" alt="Icon" width="120" height="140"></a>
+		<a href="national_polls.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/polls_image.png?raw=true" alt="Icon" width="120" height="140"></a>
+		<a href="polls_wikipedia.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/wikipedia_image.png" alt="Icon" width="120" height="130"></a>
+		<a href="compare.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/compare_image.png?raw=true" alt="Icon" width="120" height="130"></a>
+		<a href="conclusions.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/conclusion_image.png" alt="Icon" width="120" height="130"></a>
+	</section>
+	</center>
+
+  </head>
+<body style="background-color:#f2f2f2;">
+	<div align="center"; style="text-decoration: underline; padding-bottom: 10px">
+		<font size="40"; color="#4d4d4d">Evaluating Causation</font></div>
+	<div style="padding-left: 50px; padding-right: 50px; padding-bottom: 15px;">
+	Demonstrating predictive power without being able to control research design, as is the case with polls and wikipedia page traffic, is always difficult.  That said, looking at correlations between different combinations of lagged variables can give us some clues.  Here we look at the correlation of lagged polls to wikipedia traffic on the left and lagged wikipedia page traffic to polls on the right (the midpoint shows the correlation with no lag). All lags are expressed in days. 
+	</div>
+</body>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+<script>
+
+///////////////////////////////////////////////////
+//Sources
+//1. Wikipedia Candidate page Traffic
+//example: https://tools.wmflabs.org/pageviews/?project=en.wikipedia.org&platform=all-access&agent=user&start=2019-01-01&end=2019-07-15&pages=Joe_Biden
+//2. Poll Data from fivethirtyeight
+//source: https://projects.fivethirtyeight.com/polls-page/president_primary_polls.csv
+//3. Graph adapted from D3.js Graph Gallery
+//source: https://www.d3-graph-gallery.com/graph/histogram_basic.html
+///////////////////////////////////////////////////
+
+
+// set the dimensions and margins of the graph
+var margin = {top: 30, right: 30, bottom: 70, left: 60},
+    width = 600 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Parse the Data
+d3.csv("https://raw.githubusercontent.com/glavus/dataviz/master/Joseph_Schultz_Correlation_data.csv", function(data) {
+
+// X axis
+var x = d3.scaleBand()
+  .range([ 0, width ])
+  .domain(data.map(function(d) { return d.Days_Lag; }))
+  .padding(0.2);
+svg.append("g")
+  .attr("transform", "translate(0," + height + ")")
+  .call(d3.axisBottom(x))
+  .selectAll("text")
+    .attr("transform", "translate(-10,0)rotate(-45)")
+    .style("text-anchor", "end");
+
+	//add x axis label
+	svg.append("text")
+		.attr("text-anchor", "end")
+		.attr("x", width/1.13 + margin.left)
+		.attr("y", height + margin.top + 20)
+		.text("<----------------------------Polling Lag |   | Wikipedia Traffic Lag------------------>")
+	
+// Add Y axis
+var y = d3.scaleLinear()
+  .domain([0, .2])
+  .range([ height, 0]);
+svg.append("g")
+  .call(d3.axisLeft(y))
+    svg.append("text")
+      .attr("text-anchor", "end")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -margin.left + 20)
+      .attr("x", -margin.top - height/2 + 100)
+      .text("Correlation")
+
+// Bars
+svg.selectAll("mybar")
+  .data(data)
+  .enter()
+  .append("rect")
+    .attr("x", function(d) { return x(d.Days_Lag); })
+    .attr("y", function(d) { return y(d.Correlation); })
+    .attr("width", x.bandwidth())
+    .attr("height", function(d) { return height - y(d.Correlation); })
+    .attr("fill", "#69b3a2")
+
+	
+	svg.append("text").attr("x", 110).attr("y", -70).text("No Lags Correlation").style("font-size", "18px").attr("alignment-baseline","middle").attr("transform", "rotate(30)")
+})
+
+</script>
+
+<body style="background-color:#f2f2f2;">
+	<div align="left"; padding-bottom: 10px">
+		<font size="20"; color="#4d4d4d"> Notes</font></div></body>
+<div style="padding-right: 50px; padding-bottom: 25px"; align="left"> 
+Observing the correlations, wikipedia page traffic between zero (0) and four (4) days old appears to have an elevated, positive correlation with polls.  None of the correlations are strong, but this heightened relationship indicates that wikipedia traffic can be a useful predictor for poll results.  Also it is indeed wikipedia traffic that predicts poll results and not the other way around.  As indicated elsewhere, it is very likely campaign events are driving both wikipedia traffic and polls; however, clearly wikipedia traffic also has some predictive influence over polls across short time horizons. 
+</div>
+<head>
+	<center>
+	<section>
+		<a href="index.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/home_image.png" alt="Icon" width="120" height="140"></a>
+		<a href="national_polls.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/polls_image.png?raw=true" alt="Icon" width="120" height="140"></a>
+		<a href="polls_wikipedia.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/wikipedia_image.png" alt="Icon" width="120" height="130"></a>
+		<a href="compare.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/compare_image.png?raw=true" alt="Icon" width="120" height="130"></a>
+		<a href="conclusions.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/conclusion_image.png" alt="Icon" width="120" height="130"></a>
+	</section>
+	</center>
+  </head>
+</html>

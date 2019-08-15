@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<title>Race Status</title>
+<head>
+	<center>
+	<section>
+		<a href="index.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/home_image.png" alt="Icon" width="120" height="140"></a>
+		<a href="national_polls.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/polls_image.png?raw=true" alt="Icon" width="120" height="140"></a>
+		<a href="polls_wikipedia.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/wikipedia_image.png" alt="Icon" width="120" height="130"></a>
+		<a href="compare.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/compare_image.png?raw=true" alt="Icon" width="120" height="130"></a>
+		<a href="conclusions.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/conclusion_image.png" alt="Icon" width="120" height="130"></a>
+	</section>
+	</center>
+
+  </head>
+<body style="background-color:#f2f2f2;">
+	<div align="center"; style="text-decoration: underline; padding-bottom: 10px">
+		<font size="40"; color="#4d4d4d">Race Status</font></div>
+	<div style="padding-left: 50px; padding-right: 50px; padding-bottom: 15px;">
+	So we now know that wikipedia traffic is a useful predictor of short-term poll movements!  Useful for sure, but ultimately what we want to know is who will win the 2020 Democratic Party Endorsement for President (and ultimately the 2020 General Election).  A full model to predict the race winner is a bit beyond the scope of what we can accomplish here, but we can add some exploratory analysis showing the current state of the race.  Below you'll see States for which we have polling's most recent poll result.  Joe Biden is winning in all States, although who is closest varies by State and is indicated by the color of the bubble.  Bubble size indicates how many Delegates are awarded by the State (although please bear in mind that the rules surrounding how Delegates are awarded to candidates are complex and do not follow a winner-take-all rule system) and how close the 2nd place candidate is to Joe Biden & how long until the state-level election is held are indicated by the axes.
+	</div>
+</body>
+
+<!--///////////////////////////////////////////////////
+//Sources
+//1. Poll Data from fivethirtyeight
+//source: https://projects.fivethirtyeight.com/polls-page/president_primary_polls.csv
+//2. State delegate vote totals and election dates source is NYT
+//source: https://www.nytimes.com/interactive/2019/us/elections/2020-presidential-election-calendar.html?mtrref=www.google.com&gwh=F5B84C5100410EE4A1948A809B63BCAE&gwt=pay&assetType=REGIWALL
+//3. Graph adapted from Google Charts
+//source: https://developers.google.com/chart/interactive/docs/gallery/bubblechart
+///////////////////////////////////////////////////-->
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawSeriesChart);
+
+    function drawSeriesChart() {
+
+      var data = google.visualization.arrayToDataTable([
+        ['STATE', 			'DAYS_INTO_2020', 	'MARGIN_OF_LEAD', 'CLOSEST_CANDIDATE_TO_BIDEN',  	'DELEGATE_TOTAL'],
+        ['Iowa',    		34,             	5,      			'Bernie Sanders',  			41],
+        ['New Hampshire', 	42,              	7,      			'Bernie Sanders',         	24],
+        ['Nevada',    		53,               	17,      			'Elizabeth Warren',         36],
+        ['South Carolina',	60,              	27,      			'Kamala Harris',    		54],
+        ['Alabama',   		63,              	21,         		'Bernie Sanders',        	52],
+        ['California',   	63,              	1,       			'Kamala Harris',    		416],
+        ['Massachusetts',   63,              	11,      			'Elizabeth Warren',    		91],
+        ['Texas',   		63,              	11,      			'Elizabeth Warren',    		228],
+        ['Virginia',   	 	63,               	19,      			'Bernie Sanders',         	99],
+        ['Michigan',    	70,              	19,      			'Bernie Sanders',  			125],
+		['Mississippi',    	70,              	26,       			'Bernie Sanders',    		36],
+        ['Ohio',    		70,              	17,      			'Bernie Sanders',    		136],
+        ['Florida',    		77,              	36,      			'Elizabeth Warren',    		219],
+        ['Wisconsin',    	98,               	15,      			'Elizabeth Warren',         77],
+        ['Pennsylvania',    119,              	31,      			'Bernie Sanders',  			153]
+      ]);
+
+      var options = {
+        title: 'Catching Joe Biden - Who is Close & How Much Time is Left? ',
+        hAxis: {title: 'Days Into 2020'},
+        vAxis: {title: 'How Close to Joe Biden?'},
+        bubble: {textStyle: {fontSize: 11}}
+      };
+
+      var chart = new google.visualization.BubbleChart(document.getElementById('series_chart_div'));
+      chart.draw(data, options);
+    }
+    </script>
+  </head>
+  <body>
+    <div id="series_chart_div" style="width: 900px; height: 500px;"></div>
+  </body>
+
+
+<body style="background-color:#f2f2f2;">
+	<div align="left"; padding-bottom: 10px">
+		<font size="20"; color="#4d4d4d"> Notes</font></div></body>
+<div style="padding-right: 50px; padding-bottom: 25px"; align="left"> 
+The fact that this visualization had to be adjusted to show the 2nd place candidates for each State, and not the leading candidate in each State, indicates just how lopsided the 2020 Democratic Endorsement Race is at present. Biden leads by pluralities, so it remains possible that as candidates drop out that voter support coalesces around one of the non-Biden candidates.  Iowa and New Hampshire also remain quite close and, should a non-Biden candidate win either contest, could initiate a tipping effect where support could shift quickly.  It's also true that the Democratic Party's methods for awarding Delegates (typically with minimum support thresholds and proportionately) will allow losing candidates to accrue Delegates anyway and hope for a breakout moment later in the campaign.  Still, Biden's leads remain impressive in such a large field and will be difficult for any of the campaigns to assail.
+</div>
+<head>
+	<center>
+	<section>
+		<a href="index.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/home_image.png" alt="Icon" width="120" height="140"></a>
+		<a href="national_polls.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/polls_image.png?raw=true" alt="Icon" width="120" height="140"></a>
+		<a href="polls_wikipedia.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/wikipedia_image.png" alt="Icon" width="120" height="130"></a>
+		<a href="compare.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/compare_image.png?raw=true" alt="Icon" width="120" height="130"></a>
+		<a href="conclusions.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/conclusion_image.png" alt="Icon" width="120" height="130"></a>
+	</section>
+	</center>
+  </head>
+</html>

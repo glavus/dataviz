@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- TITLE STUFF-->
+	<title>Wikipedia Traffic & Polling</title>
+</head>
+<body>
+	<center>
+	<section>
+		<a href="index.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/home_image.png" alt="Icon" width="120" height="140"></a>
+		<a href="national_polls.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/polls_image.png?raw=true" alt="Icon" width="120" height="140"></a>
+		<a href="polls_wikipedia.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/wikipedia_image.png" alt="Icon" width="120" height="130"></a>
+		<a href="compare.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/compare_image.png?raw=true" alt="Icon" width="120" height="130"></a>
+		<a href="conclusions.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/conclusion_image.png" alt="Icon" width="120" height="130"></a>
+	</section>
+	</center>
+</body>
+<body style="background-color:#f2f2f2;">
+	<div align="center"; style="text-decoration: underline; padding-bottom: 10px">
+		<font size="50"; color="#4d4d4d"> Wikipedia Traffic & Political Polling</font></div>
+	<div style="padding-left: 50px; padding-right: 50px;"> Welcome to this page!  We're going to explore the relationship between Wikipedia page candidate traffic and 
+	political polling for the 2020 Democratic Presidential Endorsement Contest. Click through the images at the top of this page from left to right to walk through the analysis step by step.  
+	Does Wikipedia traffic predict predict polling, vice versa, are they only correlated, or are they not related at all? First we'll look at the data:</div>
+</body>
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Load color scale -->
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<!-- A bit of CSS: change stroke color of circle on hover (white -> black) -->
+<style>
+.bubbles {
+  stroke-width: 1px;
+  stroke: gray;
+}
+.bubbles:hover {
+  stroke: black;
+}
+</style>
+
+<script>
+
+///////////////////////////////////////////////////
+//Sources
+//1. Wikipedia Candidate page Traffic
+//example: https://tools.wmflabs.org/pageviews/?project=en.wikipedia.org&platform=all-access&agent=user&start=2019-01-01&end=2019-07-15&pages=Joe_Biden
+//2. Poll Data from fivethirtyeight
+//source: https://projects.fivethirtyeight.com/polls-page/president_primary_polls.csv
+//3. Graph adapted from D3.js Graph Gallery
+//source: https://www.d3-graph-gallery.com/graph/bubble_template.html
+///////////////////////////////////////////////////
+
+// set the dimensions and margins of the graph
+var margin = {top: 60, right: 220, bottom: 60, left: 40},
+    width = 1000 - margin.left - margin.right,
+    height = 550 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+//Read the data
+d3.csv("https://raw.githubusercontent.com/glavus/dataviz/master/Joseph_Schultz_Candidates_Detail5.csv", function(data) {
+
+  // Add X axis
+  var x = d3.scaleLinear()
+    .domain([-7, 220])
+    .range([ 0, width ]);
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x).ticks(10));
+  // Add X axis label:
+  svg.append("text")
+		.attr("text-anchor", "end")
+		.attr("x", width)
+		.attr("y", height+50 )
+      .text("Day into 2019")
+		.attr("font-size", "20px")
+		.attr("font-weight", "bold");
+	
+	
+  // Add Y axis
+  var y = d3.scaleLinear()
+    .domain([-3, 70])
+    .range([ height, 0]);
+  svg.append("g")
+    .call(d3.axisLeft(y).ticks(6));
+// Add Y axis label:
+  svg.append("text")
+		.attr("text-anchor", "end")
+		.attr("x", 0)
+		.attr("y", -20 )
+      .text("(%) in Polls")
+		.attr("text-anchor", "start")
+		.attr("font-size", "20px")
+		.attr("font-weight", "bold")
+
+  // Add a scale for bubble size
+  var z = d3.scaleLinear()
+    .domain([25000, 655000])
+    .range([ 2, 25]);
+
+  // Add a scale for bubble color
+  var myColor = d3.scaleOrdinal()
+    .domain(["Bernie Sanders", "Andrew Yang", "Beto O'Rourke", "Cory Booker", "Elizabeth Warren", "Joe Biden", "Julian Castro", "Kamala Harris", "Pete Buttigieg", "Tulsi Gabbard"])
+    .range(["#ff0000", "#00ff00", "#ffb366", "#ff80ff", "#000080", "#00ffff", "#b35900", "#666633", "#b300b3", "#ffff00"]);
+
+  // -1- Create a tooltip div that is hidden by default:
+  var tooltip = d3.select("#my_dataviz")
+    .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "gray")
+      .style("border-radius", "5px")
+      .style("padding", "10px")
+      .style("color", "white")
+
+  // -2- Create 3 functions to show / update (when mouse move but stay on same circle) / hide the tooltip
+  var showTooltip = function(d) {
+    tooltip
+      .transition()
+      .duration(200)
+    tooltip
+      .style("opacity", 1)
+      .html("Candidate: " + d.Candidate + ", Poll Percent: " + d.Poll_Percent + ", Wiki Traffic: " + d.Wikipedia_Traffic + ", Days into 2019: " + d.Date)
+      .style("left", (d3.mouse(this)[0]+30) + "px")
+      .style("top", (d3.mouse(this)[1]+30) + "px")
+  }
+  var moveTooltip = function(d) {
+    tooltip
+      .style("left", (d3.mouse(this)[0]+30) + "px")
+      .style("top", (d3.mouse(this)[1]+30) + "px")
+  }
+  var hideTooltip = function(d) {
+    tooltip
+      .transition()
+      .duration(200)
+      .style("opacity", 1)
+  }
+
+  // Add dots
+  svg.append('g')
+    .selectAll("dot")
+    .data(data)
+    .enter()
+    .append("circle")
+      .attr("class", "bubbles")
+      .attr("cx", function (d) { return x(d.Date); } )
+      .attr("cy", function (d) { return y(d.Poll_Percent); } )
+      .attr("r", function (d) { return z(d.Wikipedia_Traffic); } )
+      .style("fill", function (d) { return myColor(d.Candidate); } )
+    // -3- Trigger the functions
+    .on("mouseover", showTooltip )
+    .on("mousemove", moveTooltip )
+    .on("mouseleave", hideTooltip )
+
+	    // Add legend: circles
+    var valuesToShow = [50000, 300000, 650000]
+    var xCircle = 450
+    var xLabel = 500
+    svg
+      .selectAll("legend")
+      .data(valuesToShow)
+      .enter()
+      .append("circle")
+        .attr("cx", xCircle)
+        .attr("cy", function(d){ return height - 350 - z(d) } )
+        .attr("r", function(d){ return z(d) })
+        .style("fill", "none")
+        .attr("stroke", "black")
+		
+	    // Add legend: segments
+    svg
+      .selectAll("legend")
+      .data(valuesToShow)
+      .enter()
+      .append("line")
+        .attr('x1', function(d){ return xCircle + z(d) } )
+        .attr('x2', xLabel)
+        .attr('y1', function(d){ return height - 350 - z(d) } )
+        .attr('y2', function(d){ return height - 350 - z(d) } )
+        .attr('stroke', 'black')
+        .style('stroke-dasharray', ('2,2'))
+		
+		  // Add legend: labels
+    svg
+      .selectAll("legend")
+      .data(valuesToShow)
+      .enter()
+      .append("text")
+        .attr('x', xLabel)
+        .attr('y', function(d){ return height - 350 - z(d) } )
+        .text( function(d){ return d/1000 + "K Views"} )
+        .style("font-size", 6)
+        .attr('alignment-baseline', 'middle')
+
+    // Legend title
+    svg.append("text")
+      .attr('x', xCircle + 30)
+      .attr("y", height - 450 +30)
+      .text("Wikipedia Traffic")
+      .attr("text-anchor", "middle")
+		
+// Adding Legend for colors
+svg.append("circle").attr("cx",50).attr("cy",10).attr("r", 6).style("fill", "#ff0000")
+svg.append("circle").attr("cx",50).attr("cy",25).attr("r", 6).style("fill", "#00ff00")
+svg.append("circle").attr("cx",50).attr("cy",40).attr("r", 6).style("fill", "#ffb366")
+svg.append("circle").attr("cx",50).attr("cy",55).attr("r", 6).style("fill", "#ff80ff")
+svg.append("circle").attr("cx",50).attr("cy",70).attr("r", 6).style("fill", "#000080")
+svg.append("circle").attr("cx",180).attr("cy",10).attr("r", 6).style("fill", "#00ffff")
+svg.append("circle").attr("cx",180).attr("cy",25).attr("r", 6).style("fill", "#b35900")
+svg.append("circle").attr("cx",180).attr("cy",40).attr("r", 6).style("fill", "#666633")
+svg.append("circle").attr("cx",180).attr("cy",55).attr("r", 6).style("fill", "#b300b3")
+svg.append("circle").attr("cx",180).attr("cy",70).attr("r", 6).style("fill", "#ffff00")
+svg.append("text").attr("x", 70).attr("y", 10).text("Bernie Sanders").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 70).attr("y", 25).text("Andrew Yang").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 70).attr("y", 40).text("Beto O'Rourke").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 70).attr("y", 55).text("Cory Booker").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 70).attr("y", 70).text("Elizabeth Warren").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 200).attr("y", 10).text("Joe Biden").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 200).attr("y", 25).text("Julian Castro").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 200).attr("y", 40).text("Kamala Harris").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 200).attr("y", 55).text("Pete Buttigieg").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 200).attr("y", 70).text("Tulsi Gabbard").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 100).attr("y", -10).text("Candidate Legend").style("font-size", "16px").attr("alignment-baseline","middle")
+  })
+</script>
+<body style="background-color:#f2f2f2;">
+	<div align="left"; padding-bottom: 10px">
+		<font size="20"; color="#4d4d4d"> Notes</font></div></body>
+<div style="padding-right: 50px; padding-bottom: 25px"> 
+There's a lot of data here (despite very small values having been removed from this visualization).
+ At first glance it doesn't seem like Wikipedia traffic is driving or being driven by candidate polling.
+Lets take a look at both elements before evaluating quantitatively.</div>
+
+<body>
+	<center>
+	<section>
+		<a href="index.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/home_image.png" alt="Icon" width="120" height="140"></a>
+		<a href="national_polls.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/polls_image.png?raw=true" alt="Icon" width="120" height="140"></a>
+		<a href="polls_wikipedia.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/wikipedia_image.png" alt="Icon" width="120" height="130"></a>
+		<a href="compare.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/compare_image.png?raw=true" alt="Icon" width="120" height="130"></a>
+		<a href="conclusions.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/conclusion_image.png" alt="Icon" width="120" height="130"></a>
+	</section>
+	</center>
+</body>
+</html>

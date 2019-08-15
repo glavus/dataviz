@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+	<title>Wikipedia Traffic</title>
+<head>
+	<center>
+	<section>
+		<a href="index.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/home_image.png" alt="Icon" width="120" height="140"></a>
+		<a href="national_polls.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/polls_image.png?raw=true" alt="Icon" width="120" height="140"></a>
+		<a href="polls_wikipedia.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/wikipedia_image.png" alt="Icon" width="120" height="130"></a>
+		<a href="compare.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/compare_image.png?raw=true" alt="Icon" width="120" height="130"></a>
+		<a href="conclusions.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/conclusion_image.png" alt="Icon" width="120" height="130"></a>
+	</section>
+	</center>
+
+  </head>
+<body style="background-color:#f2f2f2;">
+	<div align="center"; style="text-decoration: underline; padding-bottom: 10px">
+		<font size="40"; color="#4d4d4d">Wikipedia Traffic</font></div>
+	<div style="padding-left: 50px; padding-right: 50px; padding-bottom: 15px;">
+	At least from a couple major events, it definitely looks like Wikipedia traffic spikes with major events in the campaign news cycle.
+	Kamala Harris has some impressive spikes in traffic, relative to the other candidates
+	
+	</div>
+</body>
+<meta charset="utf-8">
+<meta charset="utf-8">
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<center>
+<div id="my_dataviz"></div>
+<script>
+///////////////////////////////////////////////////
+//Sources
+//1. Wikipedia Candidate page Traffic
+//example: https://tools.wmflabs.org/pageviews/?project=en.wikipedia.org&platform=all-access&agent=user&start=2019-01-01&end=2019-07-15&pages=Joe_Biden
+//2. Graph adapted from D3.js Graph Gallery
+//source: https://www.d3-graph-gallery.com/graph/scatter_basic.html
+//3. Legend Source
+//source: https://www.d3-graph-gallery.com/graph/custom_legend.html
+///////////////////////////////////////////////////
+
+
+// set the dimensions and margins of the graph
+var margin = {top: 10, right: 50, bottom: 40, left: 100},
+    width = 750 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+//Read the data
+d3.csv("https://raw.githubusercontent.com/glavus/dataviz/master/Joseph_Schultz_wikipedia_detail2.csv", function(data) {
+
+  // Add X axis
+  var x = d3.scaleLinear()
+   .domain([0, 220])
+   .range([ 0, width ]);
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+  
+//add x axis label
+	svg.append("text")
+		.attr("text-anchor", "end")
+		.attr("x", width/2 + margin.left)
+		.attr("y", height + margin.top + 20)
+		.text("Days Into 2019")
+
+  // Add Y axis
+  var y = d3.scaleLinear()
+    .domain([-1, 660000])
+    .range([ height, 0]);
+  svg.append("g")
+    .call(d3.axisLeft(y))
+  svg.append("text")
+      .attr("text-anchor", "end")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -margin.left + 30)
+      .attr("x", -margin.top - height/2 + 100)
+      .text("Wikipedia Traffic")
+
+  // Color scale add
+  var colorscale = d3.scaleOrdinal()
+    .domain(["Joe Biden", "Pete Buttigieg", "Kamala Harris", "Bernie Sanders", "Elizabeth Warren"])
+    .range(["#99ccff", "#ff66cc", "#ff9933", "#33cc33", "#ff0000"])
+	
+  // Add dots
+  svg.append('g')
+    .selectAll("dot")
+    .data(data)
+    .enter()
+    .append("circle")
+      .attr("cx", function (d) { return x(d.Date); } )
+      .attr("cy", function (d) { return y(d.Wikipedia_Traffic); } )
+      .attr("r", 1.5)
+      .style("fill", function(d) {return colorscale(d.Candidate)});
+
+// Adding Legend
+svg.append("circle").attr("cx",80).attr("cy",10).attr("r", 6).style("fill", "#99ccff")
+svg.append("circle").attr("cx",80).attr("cy",25).attr("r", 6).style("fill", "#ff66cc")
+svg.append("circle").attr("cx",80).attr("cy",40).attr("r", 6).style("fill", "#ff9933")
+svg.append("circle").attr("cx",80).attr("cy",55).attr("r", 6).style("fill", "#33cc33")
+svg.append("circle").attr("cx",80).attr("cy",70).attr("r", 6).style("fill", "#ff0000")
+svg.append("text").attr("x", 100).attr("y", 10).text("Joe Biden").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 100).attr("y", 25).text("Pete Buttigieg").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 100).attr("y", 40).text("Kamala Harris").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 100).attr("y", 55).text("Bernie Sanders").style("font-size", "13px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 100).attr("y", 70).text("Elizabeth Warren").style("font-size", "13px").attr("alignment-baseline","middle")
+
+//Adding graph notes
+svg.append("text").attr("x", 200).attr("y", 50).text("Biden enters race here").style("font-size", "18px").attr("alignment-baseline","middle").attr("transform", "rotate(30)")
+svg.append("text").attr("x", 340).attr("y", -90).text("First Democratic Debate").style("font-size", "18px").attr("alignment-baseline","middle").attr("transform", "rotate(30)")
+
+
+})
+
+</script>
+
+<body style="background-color:#f2f2f2;">
+	<div align="left"; padding-bottom: 10px">
+		<font size="20"; color="#4d4d4d"> Notes</font></div></body>
+<div style="padding-right: 50px; padding-bottom: 25px"; align="left"> 
+Remembering where the spikes in polling frequency are and observing wikipedia traffic, it definitely looks like there is at least a positive correlation.
+But is there a relationship between poll position and wikipedia page traffic?
+And if so how strong is this relationship?
+Assuming there is a relationship can we say more about it?
+</div>
+<head>
+	<center>
+	<section>
+		<a href="index.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/home_image.png" alt="Icon" width="120" height="140"></a>
+		<a href="national_polls.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/polls_image.png?raw=true" alt="Icon" width="120" height="140"></a>
+		<a href="polls_wikipedia.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/wikipedia_image.png" alt="Icon" width="120" height="130"></a>
+		<a href="compare.html"><img class="icon" src="https://github.com/glavus/dataviz/blob/master/compare_image.png?raw=true" alt="Icon" width="120" height="130"></a>
+		<a href="conclusions.html"><img class="icon" src="https://raw.githubusercontent.com/glavus/dataviz/master/conclusion_image.png" alt="Icon" width="120" height="130"></a>
+	</section>
+	</center>
+  </head>
+</html>
